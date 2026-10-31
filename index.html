@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#171126" />
+  <meta name="description" content="Sakura Clash — a one-lane mini card battle with four anime heroines, mana, and twin towers." />
+  <title>Sakura Clash — Mini Lane Royale</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true">
+    <symbol id="i-crown" viewBox="0 0 24 24">
+      <path d="M2.6 7.2l4.7 3.5L12 3.4l4.7 7.3 4.7-3.5-1.9 10.2H4.5L2.6 7.2z" fill="currentColor"/>
+      <rect x="4.5" y="18.6" width="15" height="2.2" rx="1.1" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24">
+      <path d="M12 21.1S3.4 15.4 3.4 9.4A4.9 4.9 0 0112 5.9a4.9 4.9 0 018.6 3.5c0 6-8.6 11.7-8.6 11.7z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24">
+      <path d="M13.4 1.8L4.6 13.3h5.7L9 22.2l9.2-12.1h-5.8l1-8.3z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24">
+      <path d="M4 9v6h3.8L13 19.5V4.5L7.8 9H4z" fill="currentColor"/>
+      <path d="M16 8.2a5.4 5.4 0 010 7.6M18.8 5.4a9.4 9.4 0 010 13.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24">
+      <path d="M4 9v6h3.8L13 19.5V4.5L7.8 9H4z" fill="currentColor"/>
+      <path d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-sword" viewBox="0 0 24 24">
+      <path d="M20.6 2.2L9.4 13.4l1.2 1.2L21.8 3.4l.2-1.2h-1.4z" fill="currentColor"/>
+      <path d="M7.8 12.6l3.6 3.6M8.9 16.8l-4.7 4.7M6.5 14.7l2.8 2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 7v5.4l3.4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
+  <div id="app">
+    <div id="frame">
+      <header id="topHud">
+        <div class="hud-block enemy-block">
+          <div class="hud-name">
+            <span class="team-dot enemy"></span>
+            <span class="hud-name-text">HOSHINO</span>
+            <span class="crowns" id="enemyCrowns" aria-label="Enemy crowns"></span>
+          </div>
+          <div class="hp-line">
+            <div class="hp-track enemy"><div class="hp-fill" id="enemyQueenFill"></div></div>
+            <span class="hp-num" id="enemyQueenHp">2400</span>
+          </div>
+        </div>
+        <div class="timer-box">
+          <span id="timer">3:00</span>
+          <span id="phase">BATTLE</span>
+        </div>
+        <button class="icon-btn" id="soundBtn" aria-label="Toggle sound" title="Toggle sound">
+          <svg class="icon"><use href="#i-sound"></use></svg>
+        </button>
+      </header>
+
+      <main id="arenaWrap">
+        <canvas id="arena" aria-label="Battle lane"></canvas>
+        <div id="announce" class="announce" aria-live="polite"></div>
+        <div id="toast" class="toast" aria-live="polite"></div>
+        <div id="countdown" class="countdown hidden" aria-live="polite"></div>
+        <div id="hint" class="hint">TAP A CARD, THEN TAP YOUR HALF</div>
+      </main>
+
+      <footer id="bottomHud">
+        <div class="player-bar">
+          <div class="hud-name">
+            <span class="team-dot"></span>
+            <span class="hud-name-text">YOU</span>
+            <span class="crowns" id="playerCrowns" aria-label="Your crowns"></span>
+          </div>
+          <div class="hp-line">
+            <div class="hp-track"><div class="hp-fill" id="playerQueenFill"></div></div>
+            <span class="hp-num" id="playerQueenHp">2400</span>
+          </div>
+        </div>
+
+        <div class="mana-row">
+          <span class="mana-label"><svg class="icon"><use href="#i-bolt"></use></svg>MANA</span>
+          <div class="mana-track" id="manaTrack"></div>
+          <span class="mana-num" id="manaNum">5</span>
+        </div>
+
+        <div class="hand" id="hand" role="group" aria-label="Your hand"></div>
+      </footer>
+
+      <!-- START MENU -->
+      <section id="menu" class="overlay menu-overlay">
+        <div class="menu-petals" id="menuPetals" aria-hidden="true"></div>
+        <div class="menu-inner">
+          <div class="logo-mark" aria-hidden="true">桜</div>
+          <h1 class="logo">
+            <span class="logo-top">SAKURA</span>
+            <span class="logo-bottom">CLASH</span>
+          </h1>
+          <p class="tagline">ONE LANE · FOUR HEROINES · ONE CROWN</p>
+
+          <div class="hero-row" id="heroRow"></div>
+
+          <div class="menu-rules">
+            <div><b>1</b><span>LANE</span></div>
+            <div><b>4</b><span>HEROINES</span></div>
+            <div><b>3</b><span>MINUTES</span></div>
+          </div>
+
+          <button id="playBtn" class="btn primary">
+            <svg class="icon"><use href="#i-sword"></use></svg>
+            ENTER THE ARENA
+          </button>
+          <p class="menu-tip">
+            Tap a card, then tap <b>your half</b> of the lane to summon.<br>
+            Guard your Queen Tower. Shatter theirs.
+          </p>
+        </div>
+      </section>
+
+      <!-- RESULT -->
+      <section id="result" class="overlay result-overlay hidden">
+        <div class="result-panel">
+          <div class="result-kicker" id="resultKicker">VICTORY</div>
+          <div class="result-crowns" id="resultCrowns"></div>
+          <h2 id="resultTitle">The crown is yours</h2>
+          <p id="resultSub">Hoshino's queen has fallen.</p>
+
+          <div class="result-stats">
+            <div><span>TOWERS DOWN</span><b id="statTowers">0</b></div>
+            <div><span>HEROES</span><b id="statHeroes">0</b></div>
+            <div><span>DAMAGE</span><b id="statDamage">0</b></div>
+          </div>
+
+          <div class="mvp-row" id="mvpRow"></div>
+
+          <button id="rematchBtn" class="btn primary">REMATCH</button>
+          <button id="menuBtn" class="btn ghost">MAIN MENU</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/art.js"></script>
+  <script src="js/units-art.js"></script>
+  <script src="js/portraits.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/render.js"></script>
+</body>
+</html>
