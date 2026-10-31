@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#140a24">
+<meta name="description" content="Hanami Clash — a mini one-lane Clash Royale with four anime maidens, mana, and twin crown towers.">
+<title>Hanami Clash — Mini Clash Royale</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="backdrop" aria-hidden="true">
+  <div class="bokeh b1"></div><div class="bokeh b2"></div><div class="bokeh b3"></div>
+  <div class="petal-field" id="bgPetals"></div>
+</div>
+
+<main class="stage" id="stage" data-screen="title">
+  <canvas id="game" aria-label="Single lane battlefield. Deploy your cards on the lower half."></canvas>
+
+  <header class="topbar" id="topbar" hidden>
+    <div class="badge foe">
+      <div class="avatar" id="foeAvatar" aria-hidden="true"></div>
+      <div class="badge-body">
+        <span class="badge-name" id="foeName">Kitsune</span>
+        <span class="crowns" id="foeCrowns" aria-label="Enemy crowns"></span>
+      </div>
+    </div>
+    <div class="clock" id="clock">
+      <span class="clock-time" id="clockText">3:00</span>
+      <span class="clock-tag" id="clockTag" hidden>OVERTIME</span>
+    </div>
+    <div class="badge you">
+      <div class="badge-body">
+        <span class="badge-name">You</span>
+        <span class="crowns" id="youCrowns" aria-label="Your crowns"></span>
+      </div>
+      <div class="avatar" id="youAvatar" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" role="status" aria-live="polite" hidden>
+    <span class="banner-ico" id="bannerIco">✦</span>
+    <span id="bannerText">Crown Tower Destroyed</span>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <section class="dock" id="dock" hidden>
+    <div class="dock-inner">
+      <div class="dock-top">
+        <div class="you-tag"><span class="dot"></span>YOU</div>
+        <div class="mana-wrap">
+          <div class="mana-label"><span>MANA</span><span><b id="manaNow">5</b><i>/</i>10</span></div>
+          <div class="mana-bar" id="manaBar"><div class="mana-fill" id="manaFill"></div><div class="mana-pips"></div></div>
+        </div>
+        <div class="utils">
+          <button class="icon-btn" id="soundBtn" aria-label="Mute sound" title="Mute (M)">🔊</button>
+          <button class="icon-btn" id="helpBtn2" aria-label="How to play" title="How to play">?</button>
+          <button class="icon-btn" id="pauseBtn" aria-label="Pause" title="Pause (P)">❚❚</button>
+        </div>
+      </div>
+      <div class="hand" id="hand" aria-label="Your cards"></div>
+    </div>
+  </section>
+
+  <section class="screen title-screen" id="titleScreen">
+    <div class="title-inner">
+      <div class="logo-kicker">花 見 · ミ ニ</div>
+      <h1 class="logo">HANAMI <span>CLASH</span></h1>
+      <p class="logo-sub">MINI CLASH ROYALE · ONE LANE · FOUR MAIDENS</p>
+
+      <div class="lineup" id="lineup" aria-label="Your four cards"></div>
+      <p class="lineup-desc" id="lineupDesc">Tap a maiden to read her mechanic.</p>
+
+      <div class="difficulty" role="group" aria-label="Difficulty">
+        <button data-diff="easy">Casual</button>
+        <button data-diff="normal" class="active">Normal</button>
+        <button data-diff="hard">Hard</button>
+      </div>
+
+      <button class="play-btn" id="playBtn">Play</button>
+      <button class="ghost-btn" id="helpBtn">How to play</button>
+      <p class="title-foot">Tap a card, then tap your half. Break the Queen Tower.</p>
+    </div>
+  </section>
+
+  <section class="screen countdown-screen" id="countdownScreen" hidden aria-live="assertive">
+    <div class="count-num" id="countdownNum">3</div>
+    <div class="count-fight" id="countdownFight">FIGHT!</div>
+  </section>
+
+  <section class="screen modal-screen" id="pauseScreen" hidden>
+    <div class="panel small-panel">
+      <h2 class="panel-title">Paused</h2>
+      <p class="panel-sub">The blossoms wait for you.</p>
+      <div class="panel-actions">
+        <button class="play-btn compact" id="resumeBtn">Resume</button>
+        <button class="ghost-btn" id="restartBtn">Restart</button>
+        <button class="ghost-btn" id="quitBtn">Back to title</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen modal-screen result-screen" id="resultScreen" hidden>
+    <div class="result-burst" aria-hidden="true"></div>
+    <div class="panel result-panel">
+      <div class="result-kicker" id="resultKicker">MATCH COMPLETE</div>
+      <h2 class="result-title" id="resultTitle">Victory!</h2>
+      <div class="result-crowns" id="resultCrowns" aria-hidden="true"></div>
+      <p class="result-score" id="resultScore">You 0 — 0 Kitsune</p>
+      <div class="stats" id="resultStats"></div>
+      <div class="panel-actions">
+        <button class="play-btn compact" id="rematchBtn">Rematch</button>
+        <button class="ghost-btn" id="homeBtn">Title screen</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen modal-screen help-screen" id="helpScreen" hidden>
+    <div class="panel help-panel">
+      <button class="close-btn" id="closeHelp" aria-label="Close">×</button>
+      <h2 class="panel-title">How to play</h2>
+      <p class="help-lead">One lane. Ten mana. Four magical maidens. Topple the enemy Crown Towers, then the Queen Tower.</p>
+      <ul class="help-rules">
+        <li><b>Mana</b> refills over time (faster in overtime). Each card costs mana.</li>
+        <li><b>Deploy</b> by tapping a card, then tapping your half of the arena. Or drag the card onto the lane.</li>
+        <li><b>Crown Towers</b> shield the Queen. Each Crown Tower destroyed = 1 crown.</li>
+        <li><b>Win</b> by destroying the Queen Tower, or by leading on crowns when time runs out. Overtime is sudden death.</li>
+      </ul>
+      <div class="help-cards" id="helpCards"></div>
+      <div class="help-keys"><span>1–4 select</span><span>Space deploy</span><span>P pause</span><span>M mute</span></div>
+    </div>
+  </section>
+
+  <div class="scale-warning" id="scaleWarning">Rotate to portrait for the best view</div>
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
